@@ -68,7 +68,7 @@ sha3 = { version = "0.10" }
 static_assertions = { version = "1.1" }
 subxt = { version = "0.42.1" }
 subxt-metadata = { version = "0.42.1" }
-tokio = { version = "1.46.1", features = ["parking_lot", "net"], default-features = true }
+tokio = { version = "1.45.0", features = ["parking_lot", "net"], default-features = true }
 subxt-signer = { version = "0.42.1" }
 syn = { version = "2" }
 synstructure = { version = "0.13.1" }
