@@ -3286,7 +3286,6 @@ dependencies = [
  "sp-io",
  "sp-runtime-interface",
  "staging-xcm",
- "tokio",
  "trybuild",
 ]
 
@@ -6959,7 +6958,7 @@ dependencies = [
 [[package]]
 name = "substrate-prometheus-endpoint"
 version = "0.17.0"
-source = "git+https://github.com/paritytech/polkadot-sdk.git?rev=cb629d46ebf00aa65624013a61f9c69ebf02b0b4#cb629d46ebf00aa65624013a61f9c69ebf02b0b4"
+source = "git+https://github.com/use-ink/polkadot-sdk?branch=hotfix-tokio-deps#c1b5076525a6d9a95bc0e61260ea26dafdd45395"
 dependencies = [
  "http-body-util",
  "hyper",
