@@ -44,6 +44,9 @@ ink_ir = { workspace = true, default-features = true }
 ink_metadata = { workspace = true } # todo why here too?
 trybuild = { workspace = true, features = ["diff"] }
 
+[patch.'https://github.com/paritytech/polkadot-sdk']
+substrate-prometheus-endpoint = { git = "https://github.com/use-ink/polkadot-sdk", branch = "hotfix-tokio-deps" }
+
 [features]
 default = ["std"]
 std = [
