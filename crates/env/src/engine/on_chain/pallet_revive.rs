@@ -587,29 +587,6 @@ impl EnvBackend for EnvInstance {
     }
 
     #[cfg(feature = "unstable-hostfn")]
-    fn call_chain_extension<I, T, E, ErrorCode, F, D>(
-        &mut self,
-        id: u32,
-        input: &I,
-        status_to_result: F,
-        decode_to_result: D,
-    ) -> ::core::result::Result<T, E>
-    where
-        I: scale::Encode,
-        T: scale::Decode,
-        E: From<ErrorCode>,
-        F: FnOnce(u32) -> ::core::result::Result<(), ErrorCode>,
-        D: FnOnce(&[u8]) -> ::core::result::Result<T, E>,
-    {
-        let mut scope = self.scoped_buffer();
-        let enc_input = scope.take_encoded(input);
-        let output = &mut scope.take_rest();
-        status_to_result(ext::call_chain_extension(id, enc_input, Some(output)))?;
-        let decoded = decode_to_result(output)?;
-        Ok(decoded)
-    }
-
-    #[cfg(feature = "unstable-hostfn")]
     fn set_code_hash(&mut self, code_hash: &H256) -> Result<()> {
         ext::set_code_hash(code_hash.as_fixed_bytes());
         Ok(()) // todo
@@ -986,20 +963,6 @@ impl TypedEnvBackend for EnvInstance {
         ext::own_code_hash(output);
         let hash = scale::Decode::decode(&mut &output[..])?;
         Ok(hash)
-    }
-
-    #[cfg(feature = "unstable-hostfn")]
-    fn call_runtime<E, Call>(&mut self, _call: &Call) -> Result<()>
-    where
-        E: Environment,
-        Call: scale::Encode,
-    {
-        panic!("todo call_runtiem() not supported yet, see removeal in https://github.com/paritytech/polkadot-sdk/pull/8584");
-        /*
-        let mut scope = self.scoped_buffer();
-        let enc_call = scope.take_encoded(call);
-        ext::call_runtime(enc_call).map_err(Into::into)
-        */
     }
 
     #[cfg(feature = "unstable-hostfn")]
