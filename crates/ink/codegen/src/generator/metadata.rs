@@ -357,7 +357,6 @@ impl Metadata<'_> {
         let hash = generate_type_spec(&hash);
         let timestamp = generate_type_spec(&timestamp);
         let block_number = generate_type_spec(&block_number);
-        let chain_extension = generate_type_spec(&chain_extension);
         let buffer_size_const = quote!(::ink::env::BUFFER_SIZE);
         quote_spanned!(span=>
             ::ink::metadata::EnvironmentSpec::new()
@@ -366,7 +365,6 @@ impl Metadata<'_> {
                 .hash(#hash)
                 .timestamp(#timestamp)
                 .block_number(#block_number)
-                .chain_extension(#chain_extension)
                 .max_event_topics(MAX_EVENT_TOPICS)
                 .native_to_eth_ratio(NATIVE_TO_ETH_RATIO)
                 .static_buffer_size(#buffer_size_const)
