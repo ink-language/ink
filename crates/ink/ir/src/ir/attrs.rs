@@ -322,16 +322,6 @@ impl InkAttribute {
             .any(|arg| matches!(arg.kind(), AttributeArg::Anonymous))
     }
 
-    /// Returns `false` if the ink! attribute contains the `handle_status = false`
-    /// argument.
-    ///
-    /// Otherwise returns `true`.
-    pub fn is_handle_status(&self) -> bool {
-        !self
-            .args()
-            .any(|arg| matches!(arg.kind(), AttributeArg::HandleStatus(false)))
-    }
-
     /// Returns the name override value if any.
     pub fn name(&self) -> Option<String> {
         self.args().find_map(|arg| {
@@ -386,14 +376,10 @@ pub enum AttributeArgKind {
     /// `#[ink(signature_topic =
     /// "325c98ff66bd0d9d1c10789ae1f2a17bdfb2dcf6aa3d8092669afafdef1cb72d")]`
     SignatureTopicArg,
-    /// `#[ink(function = N: u16)]`
-    Function,
     /// `#[ink(namespace = "my_namespace")]`
     Namespace,
     /// `#[ink(impl)]`
     Implementation,
-    /// `#[ink(handle_status = flag: bool)]`
-    HandleStatus,
     /// `#[ink(name = "myName")]`
     Name,
 }
@@ -999,11 +985,6 @@ impl Parse for AttributeFrag {
                             path,
                             "encountered #[ink(function)] that is missing its `id` parameter. \
                             Did you mean #[ink(function = id: u16)] ?"
-                        )),
-                        "handle_status" => Err(format_err_spanned!(
-                            path,
-                           "encountered #[ink(handle_status)] that is missing its `flag: bool` parameter. \
-                            Did you mean #[ink(handle_status = flag: bool)] ?"
                         )),
                         "namespace" => Err(format_err_spanned!(
                             path,
