@@ -51,9 +51,13 @@ mod contract_storage {
             let key = 0u32;
             let value = [0x42; 32];
             ink::env::set_contract_storage(&key, &value);
-            let loaded_value = ink::env::take_contract_storage(&key)
-                .map_err(|e| format!("get_contract_storage failed: {e:?}"))?;
-            assert_eq!(loaded_value, Some(value));
+            let loaded_value = ink::env::take_contract_storage(&key).map_err(|e| {
+                //let foo = ink::prelude::format!("--9 {:?}", e);
+                //ink::env::return_value(ink::env::ReturnFlags::REVERT,
+                // &foo.into_bytes());
+                format!("get_contract_storage failed: {e:?}")
+            })?;
+            assert_eq!(loaded_value, Some(value), "foobar");
             Ok(())
         }
 

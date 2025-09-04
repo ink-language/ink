@@ -315,12 +315,6 @@ where
             self.storage_deposit_limit.clone(),
         )
         .await?;
-        //let foo = dry_run.contract_result.storage_deposit;
-        //eprintln!("-------------------submit dry run deposit {:#?}\n\n", foo.encode());
-        eprintln!(
-            "-------------------submit dry run result {:#?}\n\n",
-            dry_run.contract_result.result
-        );
 
         let gas_limit = if let Some(limit) = self.gas_limit {
             limit

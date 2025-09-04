@@ -79,6 +79,8 @@ pub use sp_weights::Weight;
 pub enum LangError {
     /// Failed to read execution input for the dispatchable.
     CouldNotReadInput = 1u32,
+    /// Static memory exhaused.
+    MemoryExhausted = 2u32,
 }
 
 /// The `Result` type for ink! messages.

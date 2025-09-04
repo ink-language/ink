@@ -385,6 +385,10 @@ impl EnvBackend for EnvInstance {
         }
     }
 
+    fn remaining_buffer(&mut self) -> usize {
+        usize::MAX
+    }
+
     fn contains_contract_storage<K>(&mut self, key: &K) -> Option<u32>
     where
         K: scale::Encode,

@@ -304,10 +304,23 @@ mod tests {
         std::fs::read(std::path::Path::new(&path)).unwrap()
     }
 
+    fn warm_up<T: Sandbox>(sandbox: &mut T)
+    where
+        <T as Sandbox>::Runtime: pallet_revive::Config + pallet_balances::Config,
+        T: BalanceAPI<T>,
+    {
+        let acc = pallet_revive::Pallet::<<T as Sandbox>::Runtime>::account_id();
+        let ed = pallet_balances::Pallet::<<T as Sandbox>::Runtime>::minimum_balance();
+        sandbox.mint_into(&acc, ed).unwrap_or_else(|_| {
+            panic!("Failed to mint existential deposit into `pallet-revive` account")
+        });
+    }
+
     #[test]
     fn can_upload_code() {
         let mut sandbox = DefaultSandbox::default();
         let contract_binary = compile_module("dummy");
+        warm_up::<DefaultSandbox>(&mut sandbox);
 
         use sha3::{
             Digest,
@@ -331,6 +344,8 @@ mod tests {
 
         let events_before = sandbox.events();
         assert!(events_before.is_empty());
+
+        warm_up::<DefaultSandbox>(&mut sandbox);
 
         let origin =
             DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());
@@ -367,6 +382,7 @@ mod tests {
         let mut sandbox = DefaultSandbox::default();
         let _actor = DefaultSandbox::default_actor();
         let contract_binary = compile_module("dummy");
+        warm_up::<DefaultSandbox>(&mut sandbox);
 
         let origin =
             DefaultSandbox::convert_account_to_origin(DefaultSandbox::default_actor());

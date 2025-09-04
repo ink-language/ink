@@ -231,4 +231,10 @@ impl<'a> ScopedBuffer<'a> {
         debug_assert!(!self.buffer.is_empty());
         self.buffer
     }
+
+    /// todo
+    /// Returns all remaining bytes of the buffer as a mutable slice.
+    pub fn remaining_buffer(&mut self) -> usize {
+        self.buffer.len()
+    }
 }

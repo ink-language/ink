@@ -886,3 +886,10 @@ where
         TypedEnvBackend::xcm_send::<E, _>(instance, dest, msg)
     })
 }
+
+/// todo
+pub fn remaining_buffer() -> usize {
+    <EnvInstance as OnInstance>::on_instance(|instance| {
+        EnvBackend::remaining_buffer(instance)
+    })
+}

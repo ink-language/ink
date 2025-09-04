@@ -151,9 +151,9 @@ where
 
         let acc = pallet_revive::Pallet::<S::Runtime>::account_id();
         let ed = pallet_balances::Pallet::<S::Runtime>::minimum_balance();
-        sandbox
-            .mint_into(&acc, ed)
-            .unwrap_or_else(|_| panic!("Failed to mint {TOKENS} tokens"));
+        sandbox.mint_into(&acc, ed).unwrap_or_else(|_| {
+            panic!("Failed to mint existential deposit into `pallet-revive` account")
+        });
     }
 }
 
@@ -197,6 +197,7 @@ where
         call_name: &'a str,
         call_data: Vec<Value>,
     ) -> Result<Self::EventLog, Self::Error> {
+        eprintln!("====================================== runtime_call");
         // Since in general, `ChainBackend::runtime_call` must be dynamic, we have to
         // perform some translation here in order to invoke strongly-typed
         // [`ink_sandbox::Sandbox`] API.
@@ -221,6 +222,10 @@ where
             RuntimeCall::<S::Runtime>::decode(&mut encoded_call.as_slice())
                 .expect("Failed to decode runtime call");
 
+        eprintln!(
+            "====================================== runtime_call {:?}",
+            decoded_call
+        );
         // Execute the call.
         self.sandbox
             .runtime_call(
@@ -271,10 +276,6 @@ where
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<E::Balance>,
     ) -> Result<BareInstantiationResult<Self::EventLog>, Self::Error> {
-        eprintln!(
-            "-------------------bare instantiate {:?}",
-            storage_deposit_limit
-        );
         let _ =
             <Client<AccountId, S> as BuilderClient<E>>::map_account(self, caller).await;
 
