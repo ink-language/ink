@@ -549,7 +549,7 @@ fn call_storage_precompile(
         &[u8::MAX; 32], // No deposit limit.
         &input_buf[..4 + 32 + 32 + encoded_bytes_len],
         Some(&mut &mut output[..]),
-    );
+    )
 }
 
 const STORAGE_FLAGS: StorageFlags = StorageFlags::empty();
