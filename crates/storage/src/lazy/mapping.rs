@@ -201,7 +201,6 @@ where
     ///   or (b) the value existed but its length exceeds the static buffer size.
     /// - `None` if there was no value under this mapping key.
     #[inline]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn try_get<Q>(&self, key: Q) -> Option<ink_env::Result<V>>
     where
         Q: scale::EncodeLike<K>,
@@ -232,14 +231,7 @@ where
     /// # Panics
     ///
     /// Traps if the encoded `key` or `value` doesn't fit into the static buffer.
-    ///
-    /// # Warning
-    ///
-    /// This method uses the
-    /// [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
-    /// which is unsafe and normally is not available on production chains.
     #[inline]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn take<Q>(&self, key: Q) -> Option<V>
     where
         Q: scale::EncodeLike<K>,
@@ -256,21 +248,16 @@ where
     /// - `Some(Err(_))` if either (a) the encoded key doesn't fit into the static buffer
     ///   or (b) the value existed but its length exceeds the static buffer size.
     /// - `None` if there was no value under this mapping key.
-    ///
-    /// # Warning
-    ///
-    /// This method uses the
-    /// [unstable interface](https://github.com/paritytech/substrate/tree/master/frame/contracts#unstable-interfaces),
-    /// which is unsafe and normally is not available on production chains.
     #[inline]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn try_take<Q>(&self, key: Q) -> Option<ink_env::Result<V>>
     where
         Q: scale::EncodeLike<K>,
     {
         let key_size = <Q as Encode>::encoded_size(&key);
 
-        if key_size > ink_env::BUFFER_SIZE {
+        if key_size.saturating_add(4 + 32 + 32 + 64 + key_size + 32 + 32)
+            > ink_env::remaining_buffer()
+        {
             return Some(Err(ink_env::Error::BufferTooSmall))
         }
 
@@ -279,7 +266,12 @@ where
                 .try_into()
                 .expect("targets of less than 32bit pointer size are not supported; qed");
 
-        if key_size.saturating_add(value_size) > ink_env::BUFFER_SIZE {
+        if key_size
+            .saturating_add(4 + 32 + 32 + 64 + key_size + 32 + 32)
+            .saturating_add(value_size)
+            .saturating_add(4 + 32 + 32 + 64 + key_size + 64 + value_size)
+            > ink_env::remaining_buffer()
+        {
             return Some(Err(ink_env::Error::BufferTooSmall))
         }
 
@@ -290,7 +282,6 @@ where
     ///
     /// Returns `None` if no `value` exists at the given `key`.
     #[inline]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn size<Q>(&self, key: Q) -> Option<u32>
     where
         Q: scale::EncodeLike<K>,
@@ -302,7 +293,6 @@ where
     ///
     /// Returns `false` if no `value` exists at the given `key`.
     #[inline]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn contains<Q>(&self, key: Q) -> bool
     where
         Q: scale::EncodeLike<K>,
@@ -312,7 +302,6 @@ where
 
     /// Clears the value at `key` from storage.
     #[inline]
-    #[cfg(feature = "unstable-hostfn")]
     pub fn remove<Q>(&self, key: Q)
     where
         Q: scale::EncodeLike<K>,
