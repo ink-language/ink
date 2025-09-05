@@ -266,15 +266,6 @@ where
                 .try_into()
                 .expect("targets of less than 32bit pointer size are not supported; qed");
 
-        // we could still panic while take-ing, as we are just comparing against the
-        // static buffer size here and not against the actually available one.
-        /*
-        let foo = key_size
-            .saturating_add(value_size)
-            .saturating_add(4 + 32 + 32 + 64 + value_size);
-           let bar =  ink_env::remaining_buffer();
-        panic!("foo {:?}, bar {:?}", foo, bar);
-         */
         if key_size
             .saturating_add(4 + 32 + 32 + 64 + key_size + 32 + 32)
             .saturating_add(value_size)

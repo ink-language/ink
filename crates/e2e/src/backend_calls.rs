@@ -225,7 +225,6 @@ where
     Contract: Clone,
     B: BuilderClient<E>,
     Abi: Send + Sync + Clone,
-    //<E as Environment>::Balance: std::fmt::Debug
 {
     /// Initialize a call builder with essential values.
     pub fn new(
@@ -333,8 +332,8 @@ where
             self.value,
             gas_limit,
             balance_to_deposit_limit::<E>(Some(
-                dry_run.contract_result.storage_deposit.charge_or_zero()
-                    * 100_000_000u32.into(),
+                dry_run.contract_result.storage_deposit.charge_or_zero(),
+                // * 100_000_000u32.into(), // todo
             )),
         )
         .await?;

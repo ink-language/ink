@@ -175,9 +175,7 @@ where
         gas_limit: Weight,
         storage_deposit_limit: DepositLimit<BalanceOf<Self::T>>,
     ) -> ContractResultInstantiate<Self::T> {
-        eprintln!("0----------- attempt {:?}", storage_deposit_limit);
         let storage_deposit_limit = storage_deposit_limit_fn(storage_deposit_limit);
-        eprintln!("1----------- attempt {:?}", storage_deposit_limit);
         self.execute_with(|| {
             pallet_revive::Pallet::<Self::T>::bare_instantiate(
                 origin,
@@ -304,6 +302,12 @@ mod tests {
         std::fs::read(std::path::Path::new(&path)).unwrap()
     }
 
+    /// `pallet-revive` uses a dedicated "pallet" account for tracking
+    /// storage deposits. The static account is returned by the
+    /// `pallet_revive::Pallet::account_id()` function.
+    ///
+    /// This function funds the account with the existential deposit
+    /// (i.e. minimum balance).
     fn warm_up<T: Sandbox>(sandbox: &mut T)
     where
         <T as Sandbox>::Runtime: pallet_revive::Config + pallet_balances::Config,
@@ -312,7 +316,7 @@ mod tests {
         let acc = pallet_revive::Pallet::<<T as Sandbox>::Runtime>::account_id();
         let ed = pallet_balances::Pallet::<<T as Sandbox>::Runtime>::minimum_balance();
         sandbox.mint_into(&acc, ed).unwrap_or_else(|_| {
-            panic!("Failed to mint existential deposit into `pallet-revive` account")
+            panic!("Failed to mint existential balance into `pallet-revive` account")
         });
     }
 

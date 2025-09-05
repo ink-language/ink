@@ -75,14 +75,6 @@ async fn take_contract_storage_consumes_entire_buffer<Client: E2EBackend>(
         .expect("instantiate failed");
     let call_builder = contract.call_builder::<ContractStorage>();
 
-    let result = client
-        .call(
-            &ink_e2e::eve(),
-            &call_builder.set_and_take_storage_all_data_consumed(),
-        )
-        .dry_run()
-        .await?;
-
     // when
     let result = client
         .call(

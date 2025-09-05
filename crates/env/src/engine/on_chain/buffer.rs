@@ -232,8 +232,14 @@ impl<'a> ScopedBuffer<'a> {
         self.buffer
     }
 
-    /// todo
-    /// Returns all remaining bytes of the buffer as a mutable slice.
+    /// Returns the size of all remaining bytes in the buffer.
+    ///
+    /// # Developer Note
+    ///
+    /// The function requires `&mut self` because `self.buffer` is
+    /// already a mutable reference in the struct.
+    ///
+    /// _The function does not actually mutate state._
     pub fn remaining_buffer(&mut self) -> usize {
         self.buffer.len()
     }

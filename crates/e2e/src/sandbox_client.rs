@@ -197,7 +197,6 @@ where
         call_name: &'a str,
         call_data: Vec<Value>,
     ) -> Result<Self::EventLog, Self::Error> {
-        eprintln!("====================================== runtime_call");
         // Since in general, `ChainBackend::runtime_call` must be dynamic, we have to
         // perform some translation here in order to invoke strongly-typed
         // [`ink_sandbox::Sandbox`] API.
@@ -222,10 +221,6 @@ where
             RuntimeCall::<S::Runtime>::decode(&mut encoded_call.as_slice())
                 .expect("Failed to decode runtime call");
 
-        eprintln!(
-            "====================================== runtime_call {:?}",
-            decoded_call
-        );
         // Execute the call.
         self.sandbox
             .runtime_call(
