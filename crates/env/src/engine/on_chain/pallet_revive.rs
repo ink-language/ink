@@ -153,13 +153,22 @@ fn encode_bool(value: bool, out: &mut [u8]) {
     }
 }
 
+const STORAGE_PRECOMPILE_ADDR: [u8; 20] =
+    hex_literal::hex!("0000000000000000000000000000000000000901");
+
 /// When encoding a Rust `[u8]` to Solidity `bytes`,
 /// a small amount of overhead space is required (for padding
 /// and the length word). This is the maximum additional space required.
-const SOLIDITY_BYTES_ENCODING_OVERHEAD: usize = 64;
+const SOL_BYTES_ENCODING_OVERHEAD: usize = 64;
 
 /// Four bytes are required to encode a Solidity selector;
-const SOLIDITY_SELECTOR_ENCODING_OVERHEAD: usize = 4;
+const SOL_ENCODED_SELECTOR_LEN: usize = 4;
+
+///
+const SOL_ENCODED_FLAGS_LEN: usize = 32;
+
+///
+const SOL_ENCODED_IS_FIXED_KEY_LEN: usize = 32;
 
 /// Encodes the `bytes` argument for the Solidity ABI.
 /// The result is written to `out`.
@@ -186,7 +195,7 @@ fn solidity_encode_bytes(input: &[u8], offset: u32, out: &mut [u8]) -> usize {
 
     // out_len = 32 + padded_len
     //         = 32 + ceil(input_len / 32) * 32
-    assert!(out.len() >= padded_len + SOLIDITY_BYTES_ENCODING_OVERHEAD);
+    assert!(out.len() >= padded_len + SOL_BYTES_ENCODING_OVERHEAD);
 
     // Encode offset as a 32-byte big-endian word
     out[28..32].copy_from_slice(&offset.to_be_bytes()[..4]);
@@ -393,8 +402,8 @@ impl TopicEncoder for Ink {
         let encoded = scoped_buffer.take_encoded_with(|buff| value.encode_to_slice(buff));
         let len_encoded = encoded.len();
         let solidity_encoding_buffer = scoped_buffer.take(
-            SOLIDITY_SELECTOR_ENCODING_OVERHEAD
-                + SOLIDITY_BYTES_ENCODING_OVERHEAD
+            SOL_ENCODED_SELECTOR_LEN
+                + SOL_BYTES_ENCODING_OVERHEAD
                 + solidity_padded_len(len_encoded),
         );
 
@@ -485,6 +494,7 @@ fn call_bool_precompile(selector: [u8; 4], output: &mut [u8]) -> bool {
     return false;
 }
 
+/// Calls a function on the `pallet-revive` `Storage` pre-compile "contract".
 fn call_storage_precompile(
     input_buf: &mut &mut [u8],
     selector: [u8; 4],
@@ -494,38 +504,53 @@ fn call_storage_precompile(
     input_buf.fill(0);
 
     debug_assert_eq!(
-        4 + 32 + 32 + 64 + solidity_padded_len(key.len()),
-        input_buf.len()
+        SOL_ENCODED_SELECTOR_LEN
+            + SOL_ENCODED_FLAGS_LEN
+            + SOL_ENCODED_IS_FIXED_KEY_LEN
+            + SOL_BYTES_ENCODING_OVERHEAD
+            + solidity_padded_len(key.len()),
+        input_buf.len(),
+        "input buffer has an unexpected size",
     );
 
     input_buf[..4].copy_from_slice(&selector[..]);
-    encode_u32(STORAGE_FLAGS.bits(), &mut input_buf[4..36]); // todo make const
-    encode_bool(false, &mut input_buf[36..68]); // const too?
-    let n = solidity_encode_bytes(key, 96, &mut input_buf[68..]);
-    debug_assert!(n >= 96); // we need to pass a key that has at least 32 bytes (the word size)
-    debug_assert!(4 + 32 + 32 + n <= input_buf.len());
+    encode_u32(STORAGE_FLAGS.bits(), &mut input_buf[4..36]); // todo @cmichi optimize
+    encode_bool(false, &mut input_buf[36..68]); // todo @cmichi optimize
 
-    //ext::return_value(ReturnFlags::REVERT, &foo.into_bytes());
+    let encoded_bytes_len = solidity_encode_bytes(
+        key,
+        // the offset is 96 here because all `Storage` pre-compile functions
+        // take the input arguments  `(uint32 flags, bool isFixedKey, bytes memory key)`.
+        // the offset is where the data payload of the third argument, `bytes`, starts:
+        // 32 bytes for `flags` + 32 bytes for `isFixedKey` + 32 bytes for the `offset`
+        // word that comes first when encoding `bytes`
+        // 96 then points to the `len|data` segment of `bytes`
+        96,
+        // encode the `bytes` starting at the appropriate position in the slice
+        &mut input_buf[SOL_ENCODED_SELECTOR_LEN
+            + SOL_ENCODED_FLAGS_LEN
+            + SOL_ENCODED_IS_FIXED_KEY_LEN..],
+    );
+
+    // todo @cmichi check if we might better return `None` in this situation. perhaps a
+    // zero sized key is legal?
+    debug_assert!(encoded_bytes_len >= 96,
+                  "the `bytes` encoding length was < 96, meaning we didn't encode a 32 byte `key`. calling this function without `key` does not make sense and is unexpected.");
 
     // output needs to hold at least 32 bytes, for the len field of `bytes`.
     // if no `bytes` are returned from the delegate call we will at the minimum
     // have the `len` field.
     assert!(output.len() >= 32);
 
-    const ADDR: [u8; 20] = hex_literal::hex!("0000000000000000000000000000000000000901");
-    let ret = ext::delegate_call(
+    ext::delegate_call(
         CallFlags::empty(),
-        &ADDR,
+        &STORAGE_PRECOMPILE_ADDR,
         u64::MAX,       // `ref_time` to devote for execution. `u64::MAX` = all
         u64::MAX,       // `proof_size` to devote for execution. `u64::MAX` = all
         &[u8::MAX; 32], // No deposit limit.
-        &input_buf[..4 + 32 + 32 + n],
+        &input_buf[..4 + 32 + 32 + encoded_bytes_len],
         Some(&mut &mut output[..]),
     );
-    //let foo = ink_prelude::format!("XXXXXXX output_len {:?} //// key_len {:?} //// n {:?} //// input_buf len {:?} //// input_buf {:?} ///// ret {:?} //// output {:?}",
-    //output.len(), key.len(), n, input_buf.len(), input_buf, ret, output);
-    //ext::return_value(ReturnFlags::REVERT, &foo.into_bytes());
-    ret
 }
 
 const STORAGE_FLAGS: StorageFlags = StorageFlags::empty();
@@ -631,7 +656,7 @@ impl EnvBackend for EnvInstance {
         // check the returned `containedKey` boolean value
         if output[31] == 0 {
             debug_assert!(
-                !s.iter().any(|&x| x != 0),
+                !output.iter().any(|&x| x != 0),
                 "both `containedKey` and `valueLen` need to be zero"
             );
             return None;

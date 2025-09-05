@@ -601,8 +601,9 @@ jobs:
               QUICKCHECK_TESTS: 2
           with:
             command: |
-                cargo contract test --all-features --manifest-path integration-tests/internal/mapping/Cargo.toml
-                INK_STATIC_BUFFER_SIZE=256 cargo contract test --all-features --manifest-path integration-tests/internal/mapping/Cargo.toml -- -- --ignored fallible_storage_methods_work
+                cargo contract test --all-features --manifest-path integration-tests/internal/mapping/Cargo.toml;
+
+                INK_STATIC_BUFFER_SIZE=256 cargo contract test --all-features --manifest-path integration-tests/internal/mapping/Cargo.toml -- -- -- --ignored fallible_storage_methods_work
 
   # TODO: (@davidsemakula) Add back to `examples-test` job when flakiness is fixed.
   examples-test-debugging-strategies:
