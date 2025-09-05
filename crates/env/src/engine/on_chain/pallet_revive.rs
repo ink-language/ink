@@ -461,8 +461,7 @@ impl EnvInstance {
         T: FromLittleEndian,
     {
         let mut scope = self.scoped_buffer();
-        // TODO: check unwrap
-        let u256: &mut [u8; 32] = scope.take(32).try_into().unwrap();
+        let u256: &mut [u8; 32] = scope.take(32).try_into().expect("failed to take 32 bytes from buffer");
         ext_fn(u256);
         let mut result = <T as FromLittleEndian>::Bytes::default();
         let len = result.as_ref().len();
@@ -689,7 +688,7 @@ impl EnvBackend for EnvInstance {
         // check the returned `containedKey` boolean value
         if output[31] == 0 {
             debug_assert!(
-                !s.iter().any(|&x| x != 0),
+                !output.iter().any(|&x| x != 0),
                 "both `containedKey` and `valueLen` need to be zero"
             );
             return None;
