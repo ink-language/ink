@@ -18,15 +18,24 @@ use std::{
 };
 
 use crate::{
+    CallBuilderFinal,
+    CallDryRunResult,
+    ChainBackend,
+    ContractsBackend,
+    E2EBackend,
+    Error,
+    H256,
+    InstantiateDryRunResult,
+    UploadResult,
     backend::BuilderClient,
     builders::{
-        constructor_exec_input,
         CreateBuilderPartial,
+        constructor_exec_input,
     },
     caller_to_origin,
     client_utils::{
-        salt,
         ContractsRegistry,
+        salt,
     },
     contract_results::{
         BareInstantiationResult,
@@ -36,15 +45,6 @@ use crate::{
     error::SandboxErr,
     keypair_to_account,
     log_error,
-    CallBuilderFinal,
-    CallDryRunResult,
-    ChainBackend,
-    ContractsBackend,
-    E2EBackend,
-    Error,
-    InstantiateDryRunResult,
-    UploadResult,
-    H256,
 };
 use frame_support::{
     dispatch::RawOrigin,
@@ -634,14 +634,12 @@ where
 }
 
 impl<
-        AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
-        Config: Sandbox,
-        E: Environment<
-                AccountId = AccountId,
-                Balance = ContractsBalanceOf<Config::Runtime>,
-            > + 'static,
-        Cliente: E2EBackend<E, Cliente>,
-    > E2EBackend<E, Cliente> for Client<AccountId, Config>
+    AccountId: Clone + Send + Sync + From<[u8; 32]> + AsRef<[u8; 32]>,
+    Config: Sandbox,
+    E: Environment<AccountId = AccountId, Balance = ContractsBalanceOf<Config::Runtime>>
+        + 'static,
+    Cliente: E2EBackend<E, Cliente>,
+> E2EBackend<E, Cliente> for Client<AccountId, Config>
 where
     Config::Runtime: pallet_balances::Config + pallet_revive::Config,
     AccountIdFor<Config::Runtime>: From<[u8; 32]> + AsRef<[u8; 32]>,

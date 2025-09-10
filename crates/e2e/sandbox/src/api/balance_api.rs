@@ -7,15 +7,9 @@ use frame_support::{
     sp_runtime::DispatchError,
     traits::fungible::Mutate,
 };
-use pallet_revive::sp_runtime::{
-    traits::StaticLookup,
-    MultiAddress,
-};
-use sp_runtime::traits::Lookup;
+use pallet_revive::sp_runtime::traits::StaticLookup;
 
 type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
-type AccountIdLookupOf<T> = <<T as frame_system::Config>::Lookup as StaticLookup>::Source;
-type LookupFor<R> = <R as frame_system::Config>::Lookup;
 
 /// Balance API for the sandbox.
 pub trait BalanceAPI<T: Sandbox>

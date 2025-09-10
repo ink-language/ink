@@ -9,18 +9,16 @@ use ink::{
     },
 };
 use ink_e2e::{
-    primitives::DepositLimit,
     Address,
-    SolDecode,
-    SolEncode,
-    subxt::tx::Signer,
-    subxt_signer,
     BuilderClient,
     ChainBackend,
     ContractsBackend,
     E2EBackend,
     PolkadotConfig,
+    SolDecode,
+    SolEncode,
     Weight,
+    primitives::DepositLimit,
     subxt::tx::Signer,
     subxt_signer,
 };

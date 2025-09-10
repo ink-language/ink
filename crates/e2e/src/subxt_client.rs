@@ -17,9 +17,13 @@ use std::fmt::Debug;
 use std::path::PathBuf;
 
 use super::{
+    H256,
+    InstantiateDryRunResult,
+    Keypair,
+    ReviveApi,
     builders::{
-        constructor_exec_input,
         CreateBuilderPartial,
+        constructor_exec_input,
     },
     deposit_limit_to_balance,
     events::{
@@ -29,19 +33,17 @@ use super::{
     log_error,
     log_info,
     sr25519,
-    InstantiateDryRunResult,
-    Keypair,
-    ReviveApi,
-    H256,
 };
 use crate::{
+    ContractsBackend,
+    E2EBackend,
     backend::{
         BuilderClient,
         ChainBackend,
     },
     client_utils::{
-        salt,
         ContractsRegistry,
+        salt,
     },
     contract_results::{
         BareInstantiationResult,
@@ -53,8 +55,6 @@ use crate::{
     error::DryRunError,
     events,
     events::ContractInstantiatedEvent,
-    ContractsBackend,
-    E2EBackend,
 };
 use ink::H160;
 use ink_env::{
@@ -1108,7 +1108,11 @@ where
                     account_id
                 }
                 let fallback = to_fallback_account_id(addr);
-                tracing::debug!("No address suffix was found in the node for H160 address {:?}, using fallback {:?}", addr, fallback);
+                tracing::debug!(
+                    "No address suffix was found in the node for H160 address {:?}, using fallback {:?}",
+                    addr,
+                    fallback
+                );
                 let account_id = E::AccountId::decode(&mut &fallback[..]).unwrap();
                 Ok(account_id)
             }
@@ -1170,7 +1174,6 @@ where
     E::Balance:
         Clone + Debug + Send + Sync + From<u128> + scale::HasCompact + serde::Serialize,
     H256: Debug + Send + Sync + scale::Encode,
-
     Cliente: E2EBackend<E, Cliente>,
 {
 }

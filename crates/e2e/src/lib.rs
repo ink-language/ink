@@ -109,10 +109,10 @@ use xts::ReviveApi;
 
 use ink_primitives::types::AccountIdMapper;
 use ink_sandbox::{
-    frame_system::pallet_prelude::OriginFor,
-    pallet_balances,
     AccountIdFor,
     Sandbox,
+    frame_system::pallet_prelude::OriginFor,
+    pallet_balances,
 };
 pub use subxt::PolkadotConfig;
 
