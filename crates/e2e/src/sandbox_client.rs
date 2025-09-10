@@ -102,33 +102,6 @@ use subxt::{
 };
 use subxt_signer::sr25519::Keypair;
 
-use crate::{
-    CallBuilderFinal,
-    CallDryRunResult,
-    ChainBackend,
-    ContractsBackend,
-    E2EBackend,
-    H256,
-    InstantiateDryRunResult,
-    UploadResult,
-    backend::BuilderClient,
-    builders::{
-        CreateBuilderPartial,
-        constructor_exec_input,
-    },
-    client_utils::{
-        ContractsRegistry,
-        salt,
-    },
-    contract_results::{
-        BareInstantiationResult,
-        ContractExecResultFor,
-        ContractResult,
-    },
-    error::SandboxErr,
-    log_error,
-};
-
 type BalanceOf<R> = <R as pallet_balances::Config>::Balance;
 type ContractsBalanceOf<R> =
     <<R as pallet_revive::Config>::Currency as Inspect<AccountIdFor<R>>>::Balance;

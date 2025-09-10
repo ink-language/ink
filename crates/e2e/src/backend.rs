@@ -12,20 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-use ink_env::{
-    DefaultEnvironment,
-    Environment,
-    call::utils::DecodeMessageResult,
-};
-use ink_primitives::{
-    DepositLimit,
-    abi::AbiEncodeWith,
-};
-use jsonrpsee::core::async_trait;
-use pallet_revive::evm::CallTrace;
-use sp_weights::Weight;
-use subxt::dynamic::Value;
-
 use super::{
     H256,
     ContractsRegistry,
@@ -49,10 +35,6 @@ use crate::{
         ReviveApi,
         Transfer,
     },
-    CallBuilder,
-    CallBuilderFinal,
-    CallDryRunResult,
-    UploadResult,
 };
 use ink_env::{
     call::utils::DecodeMessageResult,

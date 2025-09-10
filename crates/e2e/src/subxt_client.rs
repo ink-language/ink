@@ -99,46 +99,6 @@ use subxt::{
     tx::Signer,
 };
 
-use super::{
-    H256,
-    InstantiateDryRunResult,
-    Keypair,
-    ReviveApi,
-    builders::{
-        CreateBuilderPartial,
-        constructor_exec_input,
-    },
-    deposit_limit_to_balance,
-    events::{
-        CodeStoredEvent,
-        EventWithTopics,
-    },
-    log_error,
-    log_info,
-    sr25519,
-};
-use crate::{
-    ContractsBackend,
-    E2EBackend,
-    backend::{
-        BuilderClient,
-        ChainBackend,
-    },
-    client_utils::{
-        ContractsRegistry,
-        salt,
-    },
-    contract_results::{
-        BareInstantiationResult,
-        CallDryRunResult,
-        CallResult,
-        ContractResult,
-        UploadResult,
-    },
-    error::DryRunError,
-    events,
-};
-
 pub type Error = crate::error::Error<DispatchError>;
 
 /// Represents an initialized contract message builder.
