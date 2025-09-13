@@ -112,12 +112,22 @@ for manifest_path in "$path"/**/Cargo.toml; do
     if [ "$quiet" = false ]; then
       >&2 echo "Ignoring $manifest_path"
     fi
-  elif ! "$scripts_path"/is_contract.sh "$manifest_path"; then
-    if [ "$quiet" = false ]; then
-      >&2 echo "Skipping non contract: $manifest_path"
-    fi
   else
-    filtered_manifests+=("$manifest_path")
+    check=$("$scripts_path"/is_contract.sh "$manifest_path")
+    check_exit=$?
+    if [ "$check_exit" -eq 3 ]; then
+        if [ "$quiet" = false ]; then
+          >&2 echo "Skipping non contract: $manifest_path"
+        fi
+    elif [ "$check_exit" -eq 0 ]; then
+        >&2 echo "Found contract: $manifest_path"
+        filtered_manifests+=("$manifest_path")
+    else
+        if [ "$quiet" = false ]; then
+          >&2 echo "Error while checking: $manifest_path"
+          failures+=("$manifest_path")
+        fi
+    fi
   fi
 done
 
