@@ -28,8 +28,16 @@ if [ -z "$MANIFEST_PATH" ]; then
   exit 1
 fi
 
+cargo metadata --format-version=1 --manifest-path "$MANIFEST_PATH" | jq -r '.resolve.root'
 ROOT_PACKAGE=$(cargo metadata --format-version=1 --manifest-path "$MANIFEST_PATH" |
   jq -r '.resolve.root')
+
+cargo metadata --format-version=1 --manifest-path "$MANIFEST_PATH" |
+  jq -r --arg ROOT_PACKAGE "$ROOT_PACKAGE" '
+    .packages[]
+    | select(.id == $ROOT_PACKAGE).targets[]
+    | select(.kind[] | contains("lib")).src_path'
+
 SOURCE_PATH=$(cargo metadata --format-version=1 --manifest-path "$MANIFEST_PATH" |
   jq -r --arg ROOT_PACKAGE "$ROOT_PACKAGE" '
     .packages[]
