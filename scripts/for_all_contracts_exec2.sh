@@ -108,11 +108,13 @@ done
 filtered_manifests=()
 for manifest_path in "$path"/**/Cargo.toml; do
   manifest_parent="$(dirname "$manifest_path" | cut -d'/' -f2-)"
+  >&2 echo "Looking at: $manifest_path"
   if [[ "${ignore[*]}" =~ ${manifest_parent} ]]; then
     if [ "$quiet" = false ]; then
       >&2 echo "Ignoring $manifest_path"
     fi
   else
+    >&2 echo "Checking: $manifest_path"
     check=$("$scripts_path"/is_contract.sh "$manifest_path")
     check_exit=$?
     if [ "$check_exit" -eq 3 ]; then
