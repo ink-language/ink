@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -u
 
 script_name="${BASH_SOURCE[0]}"
 scripts_path=$( cd "$(dirname "$script_name")" || exit; pwd -P )
