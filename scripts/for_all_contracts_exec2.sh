@@ -127,7 +127,7 @@ done
 # determine the total number of filtered Cargo.toml files
 total_manifests=${#filtered_manifests[@]}
 echo "----filtered_manifests" $filtered_manifests
-echo "----filtered_manifests all" $filtered_manifests[@]
+echo "----filtered_manifests all" ${filtered_manifests[@]}
 echo "----total_manifests" $total_manifests
 if [ "$partitioning" = true ]; then
     echo "----partitioning"
@@ -147,6 +147,10 @@ else
     echo "----no partitioning"
     start=0
     end=$(( total_manifests - 1 ))
+fi
+
+if [[ -z "${CONTRACT_SIZE_FILE}" ]]; then
+    CONTRACT_SIZE_FILE=""
 fi
 
 for (( i = start; i <= end; i++ )); do
