@@ -28,23 +28,32 @@ if [ -z "$MANIFEST_PATH" ]; then
   exit 1
 fi
 
+>&2 echo "2"
 ROOT_PACKAGE=$(cargo metadata --format-version=1 --manifest-path "$MANIFEST_PATH" |
   jq -r '.resolve.root')
+>&2 echo $ROOT_PACKAGE
 SOURCE_PATH=$(cargo metadata --format-version=1 --manifest-path "$MANIFEST_PATH" |
   jq -r --arg ROOT_PACKAGE "$ROOT_PACKAGE" '
     .packages[]
     | select(.id == $ROOT_PACKAGE).targets[]
     | select(.kind[] | contains("lib")).src_path')
+  >&2 echo $SOURCE_PATH
 
 # Check if SOURCE_PATH is empty
 if [ -z "$SOURCE_PATH" ]; then
-  echo "Error: Source path is empty."
-  exit 1
+  >&2 echo "Error: Source path is empty for $MANIFEST_PATH."
+  # we exit with 0 as this happens e.g. for the `Cargo.toml` that
+  # denotes a workspace (or e2e/macro/Cargo.toml, linting/Cargo.toml,
+  # ink/macro/Cargo.toml).
+  # so it's not an error per se, we just don't consider this a contract then.
+  exit 0
 fi
 
 # Check for the #[ink::contract] macro in the source file
 if grep -qE '^#\[(::)?ink::contract([^]]*)\]' "$SOURCE_PATH"; then
+  >&2 echo 0
     exit 0
 else
-    exit 1
+  >&2 echo 3
+    exit 3
 fi
