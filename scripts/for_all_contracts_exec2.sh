@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -u
 
 script_name="${BASH_SOURCE[0]}"
 scripts_path=$( cd "$(dirname "$script_name")" || exit; pwd -P )
@@ -108,16 +108,29 @@ done
 filtered_manifests=()
 for manifest_path in "$path"/**/Cargo.toml; do
   manifest_parent="$(dirname "$manifest_path" | cut -d'/' -f2-)"
+  >&2 echo "Looking at: $manifest_path"
   if [[ "${ignore[*]}" =~ ${manifest_parent} ]]; then
     if [ "$quiet" = false ]; then
       >&2 echo "Ignoring $manifest_path"
     fi
-  elif ! "$scripts_path"/is_contract.sh "$manifest_path"; then
-    if [ "$quiet" = false ]; then
-      >&2 echo "Skipping non contract: $manifest_path"
-    fi
   else
-    filtered_manifests+=("$manifest_path")
+    >&2 echo "Checking: $manifest_path"
+    "$scripts_path"/is_contract.sh "$manifest_path";
+    check_exit=$?
+    echo "check_exit " $check_exit
+    if [ "$check_exit" -eq 3 ]; then
+        if [ "$quiet" = false ]; then
+          >&2 echo "Skipping non contract: $manifest_path"
+        fi
+    elif [ "$check_exit" -eq 0 ]; then
+        >&2 echo "Found contract: $manifest_path"
+        filtered_manifests+=("$manifest_path")
+    else
+        if [ "$quiet" = false ]; then
+          >&2 echo "Error while checking: $manifest_path"
+          failures+=("$manifest_path")
+        fi
+    fi
   fi
 done
 
