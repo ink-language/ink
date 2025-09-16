@@ -117,6 +117,7 @@ for manifest_path in "$path"/**/Cargo.toml; do
     >&2 echo "Checking: $manifest_path"
     "$scripts_path"/is_contract.sh "$manifest_path";
     check_exit=$?
+    echo "check_exit " $check_exit
     if [ "$check_exit" -eq 3 ]; then
         if [ "$quiet" = false ]; then
           >&2 echo "Skipping non contract: $manifest_path"
