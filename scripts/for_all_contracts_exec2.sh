@@ -106,8 +106,10 @@ done
 
 # filter out ignored paths and check if each manifest is a contract
 filtered_manifests=()
+ls "$path"/**/Cargo.toml
 for manifest_path in "$path"/**/Cargo.toml; do
   manifest_parent="$(dirname "$manifest_path" | cut -d'/' -f2-)"
+  echo "Looking at " $manifest_parent
   if [[ "${ignore[*]}" =~ ${manifest_parent} ]]; then
     if [ "$quiet" = false ]; then
       >&2 echo "Ignoring $manifest_path"
@@ -117,12 +119,15 @@ for manifest_path in "$path"/**/Cargo.toml; do
       >&2 echo "Skipping non contract: $manifest_path"
     fi
   else
+      echo "Adding to filtered " $manifest_parent
     filtered_manifests+=("$manifest_path")
   fi
 done
 
 # determine the total number of filtered Cargo.toml files
 total_manifests=${#filtered_manifests[@]}
+echo "----filtered_manifests" $filtered_manifests
+echo "----filtered_manifests all" $filtered_manifests[@]
 echo "----total_manifests" $total_manifests
 if [ "$partitioning" = true ]; then
     echo "----partitioning"
