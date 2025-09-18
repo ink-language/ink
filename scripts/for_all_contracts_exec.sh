@@ -125,7 +125,7 @@ done
 # filter out ignored paths and check if each manifest is a contract
 filtered_manifests=()
 while IFS= read -r line; do
-  ignore_line=false
+  ignore_line="false"
   for i in "${ignore[@]}"
   do
       if grep -q "$i" "$line"; then
@@ -135,7 +135,7 @@ while IFS= read -r line; do
       fi
   done
 
-  if [ "$ignore_line" -eq "true" ]; then
+  if [[ "$ignore_line" == "true" ]]; then
       >&2 echo "Using $line";
       filtered_manifests+=("$line");
   fi
