@@ -252,7 +252,7 @@ jobs:
               while IFS= read -r contract; do
                   cargo clippy --no-default-features \
                       --target ${CLIPPY_TARGET} \
-                      --manifest-path ${contract}/Cargo.toml -- -D warnings -A $CLIPPY_ALLOWED $ALLOWED_LINTS;
+                      --manifest-path ${contract} -- -D warnings -A $CLIPPY_ALLOWED $ALLOWED_LINTS;
               done < <(grep integration-tests ./contracts)
 
   check:
