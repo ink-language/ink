@@ -135,7 +135,7 @@ while IFS= read -r line; do
       fi
   done
 
-  if [[ "$ignore_line" == "true" ]]; then
+  if [[ "$ignore_line" == "false" ]]; then
       >&2 echo "Using $line";
       filtered_manifests+=("$line");
   fi
