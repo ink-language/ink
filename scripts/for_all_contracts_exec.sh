@@ -128,7 +128,7 @@ while IFS= read -r line; do
   ignore_line="false"
   for i in "${ignore[@]}"
   do
-      if grep -q "$i" "$line"; then
+      if echo "$line" | grep -q "$i"; then
         >&2 echo "Ignoring $line";
         ignore_line=true;
         break;
