@@ -150,6 +150,7 @@ if [ ${#filtered_manifests[@]} -eq 0 ]; then
           >&2 echo "Ignoring $manifest_path"
         fi
       else
+            set +e
             >&2 echo "Checking: $manifest_path"
             "$scripts_path"/is_contract.sh "$manifest_path";
             check_exit=$?
@@ -167,6 +168,7 @@ if [ ${#filtered_manifests[@]} -eq 0 ]; then
                   failures+=("$manifest_path")
                 fi
             fi
+            set -e
       fi
     done
 fi
@@ -195,7 +197,7 @@ for (( i = start; i <= end; i++ )); do
   if [ "$quiet" = false ]; then
     >&2 echo Running: "${command[@]}"
   fi
-  echo "command" ${command[@]} >&2
+  echo "evaluating command" ${command[@]} >&2
   eval "${command[@]}" >> "$output"
 
   if [ $? -eq 0 ]; then
