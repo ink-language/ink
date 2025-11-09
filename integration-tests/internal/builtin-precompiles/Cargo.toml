@@ -3,7 +3,7 @@ name = "builtin_precompiles"
 description = "E2E tests for various builtin precompiles"
 version = "6.0.0-beta"
 authors = ["Use Ink <ink@use.ink>"]
-edition = "2021"
+edition = "2024"
 publish = false
 
 [dependencies]
