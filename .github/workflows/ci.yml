@@ -627,7 +627,7 @@ jobs:
               --ignore internal/mapping \
               --ignore public/contract-xcm \
               --partition ${{ matrix.partition }}/4 -- \
-              RUST_LOG= trace cargo contract test --verbose --all-features --manifest-path {}
+              RUST_LOG=trace cargo contract test --verbose --all-features --manifest-path {}
 
   examples-test-mapping:
     runs-on: ubuntu-latest
