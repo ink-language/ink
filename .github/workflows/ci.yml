@@ -584,7 +584,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        partition: [1, 2, 3, 4]
+        partition: [1, 2, 3, 4, 5]
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -620,14 +620,15 @@ jobs:
           # todo @cmichi: We ignore `contract-xcm` until we can run a relaychain + parachain
           # setup with `ink-node`. This is required for testing XCM.
           command: |
+            export RUST_LOG=trace
             cat ./all-contracts | \
             grep integration-tests | \
             scripts/for_all_contracts_exec.sh \
               --ignore internal/static-buffer \
               --ignore internal/mapping \
               --ignore public/contract-xcm \
-              --partition ${{ matrix.partition }}/4 -- \
-              cargo contract test --all-features --manifest-path {}
+              --partition ${{ matrix.partition }}/5 -- \
+              cargo contract test --verbose --all-features --manifest-path {}
 
   examples-test-mapping:
     runs-on: ubuntu-latest
